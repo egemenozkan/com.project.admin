@@ -1,5 +1,6 @@
 spring:
   freemarker:
+    cache: false
     template-loader-path: classpath:/templates/ftl
   main:
     allow-bean-definition-overriding: true

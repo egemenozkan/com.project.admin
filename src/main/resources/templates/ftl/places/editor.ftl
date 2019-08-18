@@ -27,7 +27,7 @@
                                 </div>
                             </div>
 							<div class="pull-right">
-								<div class="col-xs-12">
+								<div class="col-lg-12">
                                     <a id="btn-add-place" href="/places/editor" class="btn btn-primary btn-cons">
                                         <i class="fa fa-plus"></i> Add New Place
                                     </a>
@@ -37,7 +37,7 @@
                         </div>
                         <div class="card-block">
 							<form role="form" method="POST" action="/places/savep">
-							    <input type="hidden" name="id" value="${ place.id?long?c! }">
+							    <input id="placeId" type="hidden" name="id" value="${ place.id?long?c! }">
 							    <#if place.language??>
 				                <div class="form-group">
                                     <label>[${ place.language }] Name </label>
@@ -172,6 +172,92 @@
                                          </div>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <!-- #appTimeTable -->
+                                        <div id="appTimeTable">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="10">Place Rows 1</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="(tm, index) in rows">
+                                                        <td>{{ tm.id }}</td>
+                                                        <td>
+                                                            <select class="form-control" v-model="tm.periodType">
+                                                                <#list periodTypes! as periodType>
+                                                                    <option>${ periodType }</option>
+                                                                </#list>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <div class="input-group">
+                                                                <div class="input-group-prepend">
+                                                                    <div class="custom-control custom-checkbox">
+                                                                        <input type="checkbox" class="custom-control-input" id="customCheck{{index}}" v-model="tm.twentyFourSeven">
+                                                                        <label class="custom-control-label" for="customCheck{{index}}">7/24</label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="input-group">
+                                                                <div class="input-group-prepend">
+                                                                    <div class="input-group-text">
+                                                                        <input type="checkbox" v-model="tm.showStartDate">
+                                                                    </div>
+                                                                </div>
+                                                                <input type="text" class="form-control my-DATE" v-model="tm.startDate">
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="input-group">
+                                                                <div class="input-group-prepend">
+                                                                    <div class="input-group-text">
+                                                                        <input type="checkbox" v-model="tm.showEndDate">
+                                                                    </div>
+                                                                </div>
+                                                                <input type="text" class="form-control my-DATE" v-model="tm.endDate">
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="input-group">
+                                                                <div class="input-group-prepend">
+                                                                    <div class="input-group-text">
+                                                                        <input type="checkbox" v-model="tm.showStartTime">
+                                                                    </div>
+                                                                </div>
+                                                                <input type="text" class="form-control my-TIME" v-model="tm.startTime">
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="input-group">
+                                                                <div class="input-group-prepend">
+                                                                    <div class="input-group-text">
+                                                                        <input type="checkbox" v-model="tm.showEndTime">
+                                                                    </div>
+                                                                </div>
+                                                                <input type="text" class="form-control my-TIME" v-model="tm.endTime">
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-success" @click="save(index)">Save</button>
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-danger" @click="remove(index)">Delete</button>
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-warning" @click="add">New</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- END of #appTimeTable -->
+                                    </div>
+                                </div>
 							    <div>
 							    <button class="btn btn-success" type="submit">Submit</button>
 							    </div>
@@ -297,7 +383,75 @@ $(function() {
     
 })
 </script>
+<script>
+        var blankTimeTable = {"id":0,"pageId":document.getElementById("placeId").value,"pageType":"PLACE","periodType":"MONDAYS","startDate":"","startTime":"","endDate":"","endTime":"","showStartTime":true,"showEndTime":true, "twentyFourSeven": false, "showStartDate":true,"showEndDate":true};
 
+        function dateFormat(date) {
+            if (typeof date != 'undefined' && date != null && date.length == 10) {
+                return date.split("-")[2] + '.' + date.split("-")[1] + '.' + date.split("-")[0]
+            }
+            return "";
+        }
+
+        function filterTimeTable(data) {
+            if (typeof data == 'undefined' || data == null || data.length == 0) {
+                return [blankTimeTable];
+            }
+
+            return data.map(item => {
+                item.startDate = dateFormat(item.startDate);
+                item.endDate = dateFormat(item.endDate);
+                return item;
+            })
+        }
+
+        var app = new Vue({
+                el: '#appTimeTable',
+                data () {
+                    return {
+                        placeId: '',
+                        rows: []
+                    }
+                },
+                mounted () {
+                   var self = this;
+                   self.placeId = document.getElementById("placeId").value;
+                   const requestUrl = '/places/' +  self.placeId + '/time-table';
+                    axios
+                    .get(requestUrl)
+                    .then(response => (this.rows = filterTimeTable(response.data)))
+                },
+                methods: {
+                    save: function (index) {
+                        const requestUrl = "/places/time-table";
+                        console.log(index);
+                        axios.post(requestUrl, this.rows[index])
+                        .then(function (response) {
+                            console.log(response);
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                    },
+                    add : function () {
+                        this.rows.push(blankTimeTable);
+                    },
+                    remove : function (index) {
+                        
+                        var self = this;
+                        const requestUrl = '/places/time-table/' +  self.rows[index].id;
+                        axios.delete(requestUrl).then(function (response) {
+                            self.rows.splice(index, 1);
+                            console.log(response);
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                    }
+
+                }
+            }) 
+        </script>
 
 </body>
 

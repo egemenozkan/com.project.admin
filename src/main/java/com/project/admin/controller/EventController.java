@@ -1,6 +1,7 @@
 package com.project.admin.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -8,21 +9,29 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.project.api.data.enums.EventPeriodType;
 import com.project.api.data.enums.EventType;
+import com.project.api.data.enums.FeeType;
 import com.project.api.data.enums.Language;
+import com.project.api.data.enums.PeriodType;
 import com.project.api.data.model.common.Content;
 import com.project.api.data.model.event.Event;
 import com.project.api.data.model.event.EventLandingPage;
+import com.project.api.data.model.event.EventRequest;
+import com.project.api.data.model.event.TimeTable;
+import com.project.api.data.model.place.Place;
 import com.project.client.service.IDatapoolService;
 import com.project.client.service.IEventService;
 import com.project.client.service.IPlaceService;
@@ -42,22 +51,24 @@ public class EventController {
 	@Autowired
 	private IDatapoolService datapoolService;
 
-	private static final EventType[] EVENT_TYPES = EventType.values();
-	private static final EventPeriodType[] PERIOD_TYPES = EventPeriodType.values();
 
-	@GetMapping({ "/list", "/list/{mainType}", "/list/{mainType}/{type}" })
-	public String listEvents(Model model, @PathVariable(required = false) String mainType, @PathVariable(required = false) String type) {
+	private static final EventType[] EVENT_TYPES = EventType.values();
+	private static final PeriodType[] PERIOD_TYPES = PeriodType.values();
+	private static final FeeType[] FEE_TYPES = FeeType.values();
+
+	@GetMapping("/list")
+	public String listEvents(Model model, @RequestParam(defaultValue = "0") int type) {
 		model.addAttribute("title", "Events");
 		List<Event> events = null;
-		if (mainType == null && type == null) {
-			events = eventService.getEvents();
+		
+		EventRequest eventRequest = new EventRequest();
+		if (type > 0) {
+			eventRequest.setType(EventType.getById(type));
 		}
-
-		if (mainType != null && type != null) {
-			type = type.toUpperCase();
-			events = eventService.getEventsByType(EventType.valueOf(type));
-		}
-		model.addAttribute("events", events);
+		/* Show OneByOne */
+		eventRequest.setDistinct(Boolean.TRUE);
+		
+		model.addAttribute("events", eventService.getEvents(eventRequest));
 
 		return "events/list";
 	}
@@ -71,6 +82,8 @@ public class EventController {
 		model.addAttribute("event", event);
 		model.addAttribute("eventTypes", EVENT_TYPES);
 		model.addAttribute("periodTypes", PERIOD_TYPES);
+		model.addAttribute("feeTypes", FEE_TYPES);
+
 		return "events/editor";
 	}
 
@@ -82,6 +95,8 @@ public class EventController {
 		model.addAttribute("event", event);
 		model.addAttribute("eventTypes", EVENT_TYPES);
 		model.addAttribute("periodTypes", PERIOD_TYPES);
+		model.addAttribute("feeTypes", FEE_TYPES);
+
 		return "events/editor";
 	}
 
@@ -97,7 +112,7 @@ public class EventController {
 	/** Landingpage **/
 
 	@GetMapping("/{id}/pages/{language}")
-	public String editorLandingPage(Model model, @PathVariable long id, @PathVariable String language) {
+	public String editorLandingPage(Model model, @PathVariable long id,@PathVariable String language) {
 
 		if (language != null) {
 			language = language.toUpperCase();
@@ -129,14 +144,47 @@ public class EventController {
 
 
 	@PostMapping("/pages")
-	public String savePage(Model model, @ModelAttribute("page") @Valid EventLandingPage page, BindingResult bindingResult) throws Exception{        
-	    if(bindingResult.hasErrors()){            
-	         LOG.debug("::saveEventPage {}",bindingResult.getFieldError().getDefaultMessage());     
-	     }                
+	public String savePage(Model model, @ModelAttribute("page") @Valid EventLandingPage page,
+			BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			LOG.debug("::saveEventPage {}", bindingResult.getFieldError().getDefaultMessage());
+		}
 		eventService.saveLandingPage(page);
 
 		return "redirect:/events/" + page.getEvent().getId() + "/pages/" + page.getLanguage().getCode().toLowerCase();
 
 	}
+	
+	@GetMapping("/autocomplete")
+	public @ResponseBody List<Place> autocompleteEvents(Model model, @RequestParam String query) {
+		if (query != null && query.length() < 3) {
+			return Collections.emptyList();
+		}
+		return placeService.autocompletePlaces(query);
+
+	}
+	
+	@GetMapping("/{id}/time-table")
+	public @ResponseBody List<TimeTable> getTimeTable(@PathVariable long id) {
+		return eventService.getTimeTableByEventId(id);
+	}
+	
+	@PostMapping("/time-table")
+	public @ResponseBody TimeTable saveTimeTable(RequestEntity<TimeTable> requestEntity) {
+		eventService.saveTimeTable(requestEntity.getBody());
+		return requestEntity.getBody();
+	}
+	
+	@DeleteMapping("/time-table/{id}")
+	public @ResponseBody boolean deleteTimeTable(@PathVariable long id) {
+		eventService.deleteTimeTableById(id);
+		return true;
+	}
+	
+
+	
+	
+	
+
 
 }

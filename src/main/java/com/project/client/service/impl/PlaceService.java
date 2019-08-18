@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.project.api.data.enums.MainType;
 import com.project.api.data.enums.PlaceType;
+import com.project.api.data.model.event.TimeTable;
 import com.project.api.data.model.place.Place;
 import com.project.api.data.model.place.PlaceLandingPage;
 import com.project.client.service.IPlaceService;
@@ -90,6 +91,28 @@ public class PlaceService extends BaseApiService implements IPlaceService {
 		StringBuilder endpoint = new StringBuilder(API_URL);
 		endpoint.append("/api/v1/places/{id}/main-image");
 		postObject(endpoint.toString(), Long.valueOf(fileId), Boolean.class, id);		
+	}
+
+	@Override
+	public List<TimeTable> getTimeTableByPlaceId(long placeId) {
+		StringBuilder endpoint = new StringBuilder(API_URL);
+		endpoint.append("/api/v1/places/{id}/time-table");
+		return (List<TimeTable>) getList(endpoint.toString(), placeId);
+	}
+
+	@Override
+	public int saveTimeTable(TimeTable timeTable) {
+		StringBuilder endpoint = new StringBuilder(API_URL);
+		endpoint.append("/api/v1/events/time-table");
+		return (int) postObject(endpoint.toString(), timeTable, Integer.class);
+	}
+
+	@Override
+	public int deleteTimeTableById(long id) {
+		StringBuilder endpoint = new StringBuilder(API_URL);
+		endpoint.append("/api/v1/events/time-table/{id}");
+		deleteObject(endpoint.toString(), id);
+		return 0;
 	}
 	
 

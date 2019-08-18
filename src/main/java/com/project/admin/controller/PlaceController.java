@@ -7,9 +7,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,8 +22,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.project.api.data.enums.LandingPageType;
 import com.project.api.data.enums.MainType;
+import com.project.api.data.enums.PeriodType;
 import com.project.api.data.enums.PlaceType;
 import com.project.api.data.model.common.Address;
+import com.project.api.data.model.event.TimeTable;
 import com.project.api.data.model.file.MyFile;
 import com.project.api.data.model.place.Place;
 import com.project.api.data.model.place.PlaceLandingPage;
@@ -54,6 +58,9 @@ public class PlaceController {
 
 	@Autowired
 	private IFileService fileService;
+	
+	private static final PeriodType[] PERIOD_TYPES = PeriodType.values();
+
 
 	@GetMapping({ "/list", "/list/{mainType}", "/list/{mainType}/{type}" })
 	public String listPlaces(Model model, @PathVariable(required = false) String mainType, @PathVariable(required = false) String type) {
@@ -91,6 +98,8 @@ public class PlaceController {
 		}
 
 		model.addAttribute("place", place);
+		model.addAttribute("periodTypes", PERIOD_TYPES);
+
 		return "places/editor";
 	}
 
@@ -104,6 +113,8 @@ public class PlaceController {
 		Place place = new Place();
 		place.setAddress(new Address());
 		model.addAttribute("place", place);
+		model.addAttribute("periodTypes", PERIOD_TYPES);
+
 		return "places/editor";
 	}
 
@@ -162,5 +173,27 @@ public class PlaceController {
 		placeService.setMainImage(id, fileId);
 		return true;
 	}
+	
+	
+	@GetMapping("/{id}/time-table")
+	public @ResponseBody List<TimeTable> getTimeTable(@PathVariable long id) {
+		return placeService.getTimeTableByPlaceId(id);
+	}
+	
+	@PostMapping("/time-table")
+	public @ResponseBody TimeTable saveTimeTable(RequestEntity<TimeTable> requestEntity) {
+		placeService.saveTimeTable(requestEntity.getBody());
+		return requestEntity.getBody();
+	}
+	
+	@DeleteMapping("/time-table/{id}")
+	public @ResponseBody boolean deleteTimeTable(@PathVariable long id) {
+		placeService.deleteTimeTableById(id);
+		return true;
+	}
+	
+
+	
+	
 
 }
