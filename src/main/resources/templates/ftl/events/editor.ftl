@@ -110,10 +110,18 @@
                                         <div class="col-lg-12">
                                             <!-- #appTimeTable -->
                                             <div id="appTimeTable">
-                                                <table>
+                                                <table v-if="eventId > 0">
                                                     <thead>
                                                         <tr>
-                                                            <th colspan="10">Test Rows15</th>
+                                                        <th>#</th>
+                                                        <th>Period Type</th>
+                                                        <th>7/24</th>
+                                                        <th>Start Date</th>
+                                                        <th>End Date</th>
+                                                        <th>Start Time</th>
+                                                        <th>End Time</th>
+                                                        <th></th>
+                                                        <th></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -400,7 +408,7 @@
                 el: '#appTimeTable',
                 data () {
                     return {
-                        eventId: '',
+                        eventId: 0,
                         rows: []
                     }
                 },
@@ -420,15 +428,18 @@
                    const requestUrl = '/events/' +  self.eventId + '/time-table';
                     axios
                     .get(requestUrl)
-                    .then(response => (this.rows = filterTimeTable(response.data)))
+                    .then(response => (self.rows = filterTimeTable(response.data)))
                 },
                 methods: {
                     save: function (index) {
+                       var self = this;
                         const requestUrl = "/events/time-table";
-                        console.log(index);
                         axios.post(requestUrl, this.rows[index])
                         .then(function (response) {
-                            console.log(response);
+                            const requestUrl = '/events/' +  self.eventId + '/time-table';
+                            axios
+                            .get(requestUrl)
+                            .then(response => (self.rows = filterTimeTable(response.data)));
                         })
                         .catch(function (error) {
                             console.log(error);

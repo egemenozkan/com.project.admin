@@ -17,9 +17,9 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.project.client.model.User;
 import com.project.client.service.ItemService;
-import com.project.client.service.UserService;
+import com.project.client.service.impl.UserService;
+import com.project.common.model.User;
 
 import reactor.core.publisher.Mono;
 
@@ -55,7 +55,7 @@ public class MainController {
 		//	myApi.getProfile();
 		}
 
-		User user = userService.findByUsername(authentication.getName());
+		 User user = userService.findByUsernameOrEmail(authentication.getName());
 
 		if (user != null) {
 			model.addAttribute("username", user.getUsername());

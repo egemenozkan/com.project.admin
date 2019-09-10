@@ -176,10 +176,10 @@
                                     <div class="col-lg-12">
                                         <!-- #appTimeTable -->
                                         <div id="appTimeTable">
-                                            <table>
+                                            <table v-if="placeId > 0">
                                                 <thead>
                                                     <tr>
-                                                        <th colspan="10">Place Rows 1</th>
+                                                        <th colspan="10">Place Opening/Closing TimeTable</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -409,7 +409,7 @@ $(function() {
                 el: '#appTimeTable',
                 data () {
                     return {
-                        placeId: '',
+                        placeId: 0,
                         rows: []
                     }
                 },
@@ -419,19 +419,21 @@ $(function() {
                    const requestUrl = '/places/' +  self.placeId + '/time-table';
                     axios
                     .get(requestUrl)
-                    .then(response => (this.rows = filterTimeTable(response.data)))
+                    .then(response => (self.rows = filterTimeTable(response.data)))
                 },
                 methods: {
                     save: function (index) {
+                         var self = this;
                         const requestUrl = "/places/time-table";
-                        console.log(index);
-                        axios.post(requestUrl, this.rows[index])
+                        axios.post(requestUrl, self.rows[index])
                         .then(function (response) {
-                            console.log(response);
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                        });
+                        const requestUrl = '/places/' +  self.placeId + '/time-table';
+                        axios
+                        .get(requestUrl)
+                        .then(response => (self.rows = filterTimeTable(response.data)))                        })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
                     },
                     add : function () {
                         this.rows.push(blankTimeTable);
