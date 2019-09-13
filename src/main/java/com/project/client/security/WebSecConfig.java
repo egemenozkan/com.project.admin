@@ -1,9 +1,5 @@
 package com.project.client.security;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,16 +9,10 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
-import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
-import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
 import com.project.client.service.IUserService;
 import com.project.client.service.UserDetailsServiceImpl;
-import com.project.common.model.User;
 
 @Configuration
 @EnableWebSecurity
@@ -79,7 +69,8 @@ public class WebSecConfig extends WebSecurityConfigurerAdapter{
 			.anyRequest()
 			.authenticated()
 			.and()
-				.oauth2Login().loginPage("/login")
+				.oauth2Login()
+				.loginPage("/login")
 				.successHandler(oauth2LoginSuccessHandler)
 				.and()
             .formLogin()
@@ -122,34 +113,34 @@ public class WebSecConfig extends WebSecurityConfigurerAdapter{
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());     
     }
     
-    @Bean
-	public GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
-		return (authorities) -> {
-			Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-
-			authorities.forEach(authority -> {
-				String username = "";
-
-				if (OidcUserAuthority.class.isInstance(authority)) {
-					OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
-					OidcIdToken idToken = oidcUserAuthority.getIdToken();
-					username = idToken.getClaimAsString("email");
-				} else if (OAuth2UserAuthority.class.isInstance(authority)) {
-					OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority) authority;
-					Map<String, Object> attributes = oauth2UserAuthority.getAttributes();
-					username = (String) attributes.get("name");
-				}
-				User user = userService.findByUsernameOrEmail(username);
-//				if (userService.existsByEmailOrUsername(username)) {
-//					User user = userService.findByUsernameOrEmail(username);
-//					mappedAuthorities.addAll(user.getAuthorities());
-//				} else {
-//					mappedAuthorities.add(authority);
+//    @Bean
+//	public GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
+//		return (authorities) -> {
+//			Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+//
+//			authorities.forEach(authority -> {
+//				String username = "";
+//
+//				if (OidcUserAuthority.class.isInstance(authority)) {
+//					OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
+//					OidcIdToken idToken = oidcUserAuthority.getIdToken();
+//					username = idToken.getClaimAsString("email");
+//				} else if (OAuth2UserAuthority.class.isInstance(authority)) {
+//					OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority) authority;
+//					Map<String, Object> attributes = oauth2UserAuthority.getAttributes();
+//					username = (String) attributes.get("name");
 //				}
-			});
-
-			return mappedAuthorities;
-		};
-	}
+//				User user = userService.findByUsernameOrEmail(username);
+////				if (userService.existsByEmailOrUsername(username)) {
+////					User user = userService.findByUsernameOrEmail(username);
+////					mappedAuthorities.addAll(user.getAuthorities());
+////				} else {
+////					mappedAuthorities.add(authority);
+////				}
+//			});
+//
+//			return mappedAuthorities;
+//		};
+//	}
 
 }

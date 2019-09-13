@@ -1,9 +1,7 @@
 package com.project.client.security;
 
 import java.io.IOException;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Collection;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -15,10 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.project.client.model.Authority;
-import com.project.client.model.User;
-import com.project.client.service.AuthorityService;
-import com.project.client.service.UserService;
+import com.project.client.service.impl.UserService;
 
 @Component
 public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
@@ -26,21 +21,20 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 	@Autowired
 	private UserService userService;
 
-	@Autowired
-	private AuthorityService authorityService;
+
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws ServletException, IOException {
 		String username = authentication.getName();
-
-		if (!userService.existsByUsername(username)) {
-			String authorityName = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-					.findFirst().get();
-			Authority authority = authorityService.findByAuthority(authorityName);
-			Set<Authority> authorities = Stream.of(authority).collect(Collectors.toSet());
-			userService.save(new User(username, "", authorities));
-		}
+		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+//		if (!userService.existsByEmailOrUsername(username)) {
+//			String authorityName = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+//					.findFirst().get();
+////			Authority authority = authorityService.findByAuthority(authorityName);
+////			Set<Authority> authorities = Stream.of(authority).collect(Collectors.toSet());
+////			userService.save(new User(username, "", authorities));
+//		}
 
 		super.onAuthenticationSuccess(request, response, authentication);
 	}

@@ -54,13 +54,13 @@ public class LoginController {
 			return "error";
 		}
 
-		 User user = userService.findByUsernameOrEmail(username);
+//		 User user = userService.findByUsernameOrEmail(username);
 
-		if (user != null) {
-			if (user.getPassword().equals(password)) {
-				logger.debug("user: {}", gson.toJson(user));
-			}
-		}
+//		if (user != null) {
+//			if (user.getPassword().equals(password)) {
+//				logger.debug("user: {}", gson.toJson(user));
+//			}
+//		}
 
 		return "login";
 	}
