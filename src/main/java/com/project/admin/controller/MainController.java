@@ -17,9 +17,9 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.project.client.model.User;
 import com.project.client.service.ItemService;
-import com.project.client.service.UserService;
+import com.project.client.service.impl.UserService;
+import com.project.common.model.User;
 
 import reactor.core.publisher.Mono;
 
@@ -55,15 +55,15 @@ public class MainController {
 		//	myApi.getProfile();
 		}
 
-		User user = userService.findByUsername(authentication.getName());
+//		 User user = userService.findByUsernameOrEmail(authentication.getName());
 
-		if (user != null) {
-			model.addAttribute("username", user.getUsername());
-			model.addAttribute("password", user.getPassword());
-			model.addAttribute("role", user.getAuthorities().stream().findAny().orElse(null));
-		}
-
-		String authority = user.getAuthorities().stream().findFirst().get().getAuthority();
+//		if (user != null) {
+//			model.addAttribute("username", user.getUsername());
+//			model.addAttribute("password", user.getPassword());
+//			model.addAttribute("role", user.getAuthorities().stream().findAny().orElse(null));
+//		}
+//
+//		String authority = user.getAuthorities().stream().findFirst().get().getAuthority();
 //		"ROLE_ADMIN".equals(authority) ? "/admin/index" : "/places/list";
 		return "redirect:/places/list";
 	}

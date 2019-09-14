@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import com.project.api.data.enums.Language;
 import com.project.api.data.enums.Status;
 import com.project.api.data.model.comment.Comment;
+import com.project.api.data.model.comment.CommentResponse;
 import com.project.api.data.model.comment.PlaceComment;
-import com.project.api.data.model.comment.PlaceCommentResponse;
 import com.project.client.service.ICommentManagementService;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -20,13 +20,13 @@ public class CommentManagementService extends BaseApiService implements IComment
 	private String API_URL;
 
 	@Override
-	public PlaceCommentResponse getPlaceComments(long id, Language language) {
+	public CommentResponse getPlaceComments(long id, Language language) {
 		StringBuffer endpoint = new StringBuffer(API_URL);
 		endpoint.append("/api/v1/places/{id}/comments");
 		endpoint.append("?language=");
 		endpoint.append(language.getCode());
 
-		return (PlaceCommentResponse) getObject(endpoint.toString(), PlaceCommentResponse.class, id);
+		return (CommentResponse) getObject(endpoint.toString(), CommentResponse.class, id);
 	}
 
 	@Override

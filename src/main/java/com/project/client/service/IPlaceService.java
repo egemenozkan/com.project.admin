@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.project.api.data.enums.MainType;
 import com.project.api.data.enums.PlaceType;
+import com.project.api.data.model.event.TimeTable;
 import com.project.api.data.model.place.Place;
 import com.project.api.data.model.place.PlaceLandingPage;
 
@@ -18,5 +19,8 @@ public interface IPlaceService {
 	PlaceLandingPage getLandingPageByPlaceIdAndLanguage(long id, String language);
 	List<Place> autocompletePlaces(String query);
 	void setMainImage(long id, long fileId);
+	List<TimeTable> getTimeTableByPlaceId(long placeId);
+	int saveTimeTable(TimeTable timeTable);
+	int deleteTimeTableById(long id);
 
 }

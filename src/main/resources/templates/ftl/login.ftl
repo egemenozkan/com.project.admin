@@ -61,7 +61,7 @@
                     width="78" height="22">
                 <p class="p-t-35">Sign into your pages account</p>
 
-                <form id="form-login" class="p-t-15" role="form" action="index.html">
+                <form id="form-login" class="p-t-15" role="form" action="/plogin" method="post">
 
                     <div class="form-group form-group-default">
                         <label>Login</label>
