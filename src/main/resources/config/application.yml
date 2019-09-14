@@ -5,8 +5,6 @@ spring:
   main:
     allow-bean-definition-overriding: true
     
-logging:
-  file: log/admin-opetra.log
 
 server:
   port: 8086
