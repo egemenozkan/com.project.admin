@@ -1,25 +1,28 @@
 package com.project.client.service.impl;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 
 import com.project.api.data.model.common.DestinationAutocomplete;
 import com.project.api.data.model.common.IdValue;
+import com.project.api.data.model.gis.City;
+import com.project.api.data.model.gis.Country;
+import com.project.api.data.model.gis.District;
+import com.project.api.data.model.gis.Region;
+import com.project.api.data.model.gis.Subregion;
 import com.project.client.service.IDatapoolService;
-import com.project.common.model.City;
-import com.project.common.model.Country;
 import com.project.common.model.Nationality;
-import com.project.common.model.Region;
-import com.project.common.model.Subregion;
 
 @Service
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class DatapoolService extends BaseApiService implements IDatapoolService {
 	@Value("${com.project.api-uri}")
 	private String API_URL;
-	
+
 	@Override
 	public List<Nationality> getNationalities() {
 		// TODO Auto-generated method stub
@@ -38,24 +41,17 @@ public class DatapoolService extends BaseApiService implements IDatapoolService 
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<City> getCitiesByCountryId(int countryId) {
-		StringBuffer endpoint = new StringBuffer(API_URL);
-		endpoint.append("/api/v1/datapool/countries/{countryId}/cities");
-		return (List<City>) getList(endpoint.toString(), countryId);
-	}
-
-	@Override
-	public List<Region> getRegionsByCityId(int cityId) {
-		StringBuffer endpoint = new StringBuffer(API_URL);
-		endpoint.append("/api/v1/datapool/cities/{cityId}/regions");
-		return (List<Region>) getList(endpoint.toString(), cityId);
+	public List<City> getCitiesByCountry(int id) {
+		StringBuilder endpoint = new StringBuilder(API_URL);
+		endpoint.append("/api/v1/gis/countries/{id}/cities");
+		return getArrayList(endpoint.toString(), new ParameterizedTypeReference<List<City>>() {
+		}, id);
 	}
 
 	@Override
 	public List<Subregion> getSubregionsByRegionId(int regionId) {
-		StringBuffer endpoint = new StringBuffer(API_URL);
+		StringBuilder endpoint = new StringBuilder(API_URL);
 		endpoint.append("/api/v1/datapool/regions/{regionId}/subregions");
 		return (List<Subregion>) getList(endpoint.toString(), regionId);
 	}
@@ -63,7 +59,28 @@ public class DatapoolService extends BaseApiService implements IDatapoolService 
 	@Override
 	public List<DestinationAutocomplete> getDestinations() {
 		// TODO Auto-generated method stub
-		return null;
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<Region> getRegionsByDistrict(int id) {
+		StringBuilder endpoint = new StringBuilder(API_URL);
+		endpoint.append("/api/v1/gis/districts/{id}/regions");
+		return (List<Region>) getList(endpoint.toString(), id);
+	}
+
+	@Override
+	public List<District> getDistrictsByCity(int id) {
+		StringBuilder endpoint = new StringBuilder(API_URL);
+		endpoint.append("/api/v1/gis/cities/{id}/districts");
+		return (List<District>) getList(endpoint.toString(), id);
+	}
+
+	@Override
+	public List<Region> getRegionsByCity(int id) {
+		StringBuilder endpoint = new StringBuilder(API_URL);
+		endpoint.append("/api/v1/gis/cities/{id}/regions");
+		return (List<Region>) getList(endpoint.toString(), id);
 	}
 
 }

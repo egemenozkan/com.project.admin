@@ -1,6 +1,7 @@
-package com.project.admin.controller;
+package com.project.admin.controller.event;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.project.api.data.enums.EventType;
 import com.project.api.data.enums.FeeType;
 import com.project.api.data.enums.Language;
 import com.project.api.data.enums.PeriodType;
@@ -30,6 +30,8 @@ import com.project.api.data.model.common.Content;
 import com.project.api.data.model.event.Event;
 import com.project.api.data.model.event.EventLandingPage;
 import com.project.api.data.model.event.EventRequest;
+import com.project.api.data.model.event.EventStatus;
+import com.project.api.data.model.event.EventType;
 import com.project.api.data.model.event.TimeTable;
 import com.project.api.data.model.place.Place;
 import com.project.client.service.IDatapoolService;
@@ -55,21 +57,33 @@ public class EventController {
 	private static final EventType[] EVENT_TYPES = EventType.values();
 	private static final PeriodType[] PERIOD_TYPES = PeriodType.values();
 	private static final FeeType[] FEE_TYPES = FeeType.values();
+	private static final EventStatus[] EVENT_STATUSES = EventStatus.values();
 
 	@GetMapping("/list")
-	public String listEvents(Model model, @RequestParam(defaultValue = "0") int type) {
+	public String listEvents(Model model, @RequestParam(defaultValue = "false") boolean filter, @RequestParam(defaultValue = "0") int type,
+			@RequestParam(defaultValue = "") String[] types,
+			@RequestParam(defaultValue = "1") int status) {
+		model.addAttribute("eventTypes", EVENT_TYPES);
+		model.addAttribute("eventStatuses", EVENT_STATUSES);
 		model.addAttribute("title", "Events");
-		List<Event> events = null;
-		
-		EventRequest eventRequest = new EventRequest();
-		if (type > 0) {
-			eventRequest.setType(EventType.getById(type));
-		}
-		/* Show OneByOne */
-		eventRequest.setDistinct(Boolean.TRUE);
-		
-		model.addAttribute("events", eventService.getEvents(eventRequest));
 
+		if (filter) {	
+			EventRequest eventRequest = new EventRequest();
+			
+			if (type > 0) {
+				eventRequest.setType(EventType.getById(type));
+			}
+			if (types != null) {
+				eventRequest.setTypes(types);
+			}
+			
+			eventRequest.setStatus(EventStatus.getById(status));
+			
+			/* Show OneByOne */
+			eventRequest.setDistinct(Boolean.TRUE);
+			model.addAttribute("eventRequest", eventRequest);
+			model.addAttribute("events", eventService.getEvents(eventRequest));
+		}
 		return "events/list";
 	}
 

@@ -79,16 +79,24 @@
 								</div>
                                 <div class="form-group ">
                                     <div class="row">
-                                        <div class="col-4">
+                                        <div class="col-3">
 		                                    <label>City</label>
-		                                    <select id="sel-city" class="full-width" name="address.cityId" data-childSelector="#sel-region" data-init-plugin="select2">
+		                                    <select id="sel-city" class="full-width" name="address.cityId" data-childSelector="#sel-district" data-init-plugin="select2">
 		                                        <option>Seçiniz</option>
 		                                        <#list cities! as city>
 		                                            <option ${ (place.address.cityId! == city.id)?then('selected','') }  value="${ city.id }">${ city.name }</option>
 		                                        </#list>
 		                                    </select>                                        
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-3">
+                                            <label>District</label>
+                                            <select id="sel-district" class="full-width" name="address.districtId" data-childSelector="#sel-region" data-init-plugin="select2">
+                                                <#list districts! as district>
+                                                    <option ${ (place.address.districtId! == district.id)?then('selected','') }  value="${ district.id }">${ district.name }</option>
+                                                </#list>
+                                            </select>                                        
+                                        </div>
+                                        <div class="col-3">
                                             <label>Region</label>
                                             <select id="sel-region" class="full-width" name="address.regionId" data-childSelector="#sel-subregion" data-init-plugin="select2">
                                                 <#list regions! as region>
@@ -96,14 +104,14 @@
                                                 </#list>
                                             </select>                                        
                                         </div>
-                                        <div class="col-4">
+                                        <#--  <div class="col-3">
                                             <label>Subregion</label>
                                             <select id="sel-subregion" class="full-width" name="address.subregionId" data-init-plugin="select2">
                                                 <#list subregions! as subregion>
                                                     <option ${ (place.address.subregionId! == subregion.id)?then('selected','') }  value="${ subregion.id }">${ subregion.name }</option>
                                                 </#list>
                                             </select>                                        
-                                        </div>                                                                                
+                                        </div>                                                                                  -->
                                     </div>
 
                                 </div>
@@ -359,10 +367,14 @@ $(function() {
     }
     
     $("#sel-city").change(function () {
-        apiFeedByParent(this, "/cities/{param}/regions");
+        apiFeedByParent(this, "/cities/{param}/districts");
+    });
+
+    $("#sel-district").change(function () {
+        apiFeedByParent(this, "/districts/{param}/regions");
     });
     $("#sel-region").change(function () {
-        apiFeedByParent(this, "/regions/{param}/subregions");
+        //apiFeedByParent(this, "/regions/{param}/subregions");
     });
     
     $('[name="address.lat"]').bind("paste", function(e){

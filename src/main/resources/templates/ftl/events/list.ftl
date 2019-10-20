@@ -1,3 +1,16 @@
+<#ftl encoding="utf-8">
+<#import "*/imports/spring.ftl" as spring />
+<#import "*/imports/formatter.ftl" as formatter />
+<#import "*/imports/utils.ftl" as utils /> 
+	<!-- Page Properties -->
+<#assign title>Events</#assign>
+<#assign description></#assign>
+<#assign category="home">
+<#assign page="index">
+<#assign 	styles=[]>
+<#assign javascripts=[]>
+<#assign bundle="index"> 
+
 <!DOCTYPE html>
 <html>
 
@@ -9,26 +22,53 @@
     <div class="page-container ">
         <#include "/common/top.ftl">
         <div class="page-content-wrapper ">
-
+            
             <div class="content ">
-                <div class=" container-fluid   container-fixed-lg bg-white">
+                <div class=" container-fluid container-fixed-lg bg-white">
                     <div class="card card-transparent">
                         <div class="card-header ">
                             <div class="card-title">Events
                             </div>
                             <div class="pull-right">
-                                <div class="col-xs-12">
+                                <div class="col-12">
                                     <input type="text" id="search-table" class="form-control pull-right" placeholder="Search">
                                 </div>
                             </div>
 							<div class="pull-right">
-								<div class="col-xs-12">
+								<div class="col-12">
 									<a id="btn-add-event" href="/events/editor" class="btn btn-primary btn-cons">
 										<i class="fa fa-plus"></i> Add New Event
 									</a>
 								</div>
 							</div>
 							<div class="clearfix"></div>
+                            <form>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="row">
+                                            <div class="form-group col-4">
+                                                <label for="sel-eventType">Type</label>
+                                                <select id="sel-eventType" name="types" class="full-width" data-init-plugin="select2" multiple placeholder="Choose">
+                                                    <#list eventTypes as eventType>
+                                                        <option value="${ eventType.id }" <#if (eventRequest?? && eventRequest.types?seq_contains(eventType.id?c)) ||  (!eventRequest?? && eventType == 'ALL')>selected</#if>>${ eventType }</option>
+                                                    </#list>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-4">
+                                                <label for="sel-eventStatus">Status</label>
+                                                <select id="sel-eventStatus" name="status" class="full-width" data-init-plugin="select2">
+                                                    <#list eventStatuses as eventStatus>
+                                                        <option value="${ eventStatus.id }" <#if eventRequest?? && eventRequest.status.id == eventStatus.id>selected</#if>>${ eventStatus }</option>
+                                                    </#list>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <button type="submit" name="filter" value="true" class="btn-success btn-sm">Filter</button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                         <div class="card-block">
                             <table class="table table-hover demo-table-search table-responsive-block" id="">

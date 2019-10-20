@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.project.client.service.ItemService;
 import com.project.client.service.impl.UserService;
@@ -47,7 +48,7 @@ public class MainController {
 // 	        return testObject + restTemplate.getAccessToken().toString();
 // 	}
 	@GetMapping("/")
-	public String index(Model model, Authentication authentication) {
+	public RedirectView index(Model model, Authentication authentication) {
 		if (authentication instanceof OAuth2AuthenticationToken) {
 			OAuth2AuthenticationToken oauth2Authentication = (OAuth2AuthenticationToken) authentication;
 			OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(oauth2Authentication.getAuthorizedClientRegistrationId(), authentication.getName());
@@ -65,7 +66,9 @@ public class MainController {
 //
 //		String authority = user.getAuthorities().stream().findFirst().get().getAuthority();
 //		"ROLE_ADMIN".equals(authority) ? "/admin/index" : "/places/list";
-		return "redirect:/places/list";
+		 RedirectView redirect = new RedirectView("/events/list");
+		    redirect.setExposeModelAttributes(false);
+		    return redirect;
 	}
 
 	@GetMapping("/userinfo")

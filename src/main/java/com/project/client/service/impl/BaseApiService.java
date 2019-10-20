@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.project.api.data.model.event.Event;
 
 @Repository
@@ -19,13 +20,12 @@ public abstract class BaseApiService<T> {
 
 	@Autowired
 	private RestTemplate restTemplate;
-	
+
 	@Autowired
 	private OAuth2RestTemplate oAuth2RestTemplate;
 
 	public List<?> getList(String endpoint, Object... parameters) {
-		
-		
+
 		List<?> result = null;
 		if (parameters == null || parameters.length == 0) {
 			try {
@@ -39,6 +39,24 @@ public abstract class BaseApiService<T> {
 
 		return result;
 	}
+
+//		public <T> List<T> getList(String endpoint, Object... parameters, Class<T> tClass) throws IOException {
+//		    ObjectMapper mapper = new ObjectMapper();
+//
+//		
+//		List<?> result = null;
+//		if (parameters == null || parameters.length == 0) {
+//			try {
+//				result = restTemplate().getForObject(endpoint, List.class);
+//			} catch (Exception exception) {
+//				exception.getLocalizedMessage();
+//			}
+//		} else {
+//			result = restTemplate().getForObject(endpoint, List.class, parameters);
+//		}
+//
+//		return  mapper.readValue(json, new TypeReference<List<T>>(){});;
+//	}
 
 	public List<?> getList(URI endpoint, Object... parameters) {
 
@@ -68,9 +86,19 @@ public abstract class BaseApiService<T> {
 
 		return result;
 	}
-	
-	public List<T> getList(String url, ParameterizedTypeReference<List<T>> ptr) {
+
+	public List<T> getArrayList(String url, ParameterizedTypeReference<List<T>> ptr, Object... parameters) {
+		List<T> result = null;
+		ResponseEntity<List<T>> responseEntity = (ResponseEntity<List<T>>) restTemplate().exchange(url, HttpMethod.GET, null, ptr, parameters);
+		if (responseEntity.hasBody()) {
+			result = responseEntity.getBody();
+		}
 		
+		return result;
+	}
+
+	public List<T> getList(String url, ParameterizedTypeReference<List<T>> ptr) {
+
 		List<T> result = Collections.emptyList();
 		ResponseEntity<List<T>> responseEntity = restTemplate().exchange(url, HttpMethod.GET, null, ptr);
 		if (responseEntity.hasBody()) {
@@ -85,6 +113,7 @@ public abstract class BaseApiService<T> {
 		T responseBody = responseEntity.getBody();
 		return responseBody;
 	}
+
 //	public Object getObject(String endpoint, Object parameter, Class<T> responseType) {
 //		ResponseEntity<T> responseEntity = restTemplate().getForEntity
 //		T responseBody = responseEntity.getBody();
@@ -96,6 +125,7 @@ public abstract class BaseApiService<T> {
 		T responseBody = responseEntity.getBody();
 		return responseBody;
 	}
+
 	public Object getObject(String endpoint, Class<T> responseType, Object... parameters) {
 		ResponseEntity<T> responseEntity = null;
 		if (parameters == null || parameters.length == 0) {
@@ -110,12 +140,11 @@ public abstract class BaseApiService<T> {
 
 		return responseEntity.getBody();
 	}
-	
+
 	public void deleteObject(String endpoint, Object... parameters) {
-		restTemplate().delete(endpoint, parameters); 
+		restTemplate().delete(endpoint, parameters);
 	}
-	
-	
+
 	private RestTemplate restTemplate() {
 		return this.oAuth2RestTemplate;
 	}

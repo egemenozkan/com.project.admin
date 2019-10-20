@@ -25,8 +25,8 @@
 
 
         <div class="sidebar-header">
-            <img src="/assets/img/logo_white.png" alt="logo" class="brand" data-src="/assets/img/logo_white.png" data-src-retina="/assets/img/logo_white_2x.png"
-             width="78" height="22">
+            <#--  <img src="/assets/img/logo_white.png" alt="logo" class="brand" data-src="/assets/img/logo_white.png" data-src-retina="/assets/img/logo_white_2x.png"
+             width="78" height="22">  -->
             <div class="sidebar-header-controls">
                 <button type="button" class="btn btn-xs sidebar-slide-toggle btn-link m-l-20 hidden-md-down" data-pages-toggle="#appMenu"><i
                      class="fa fa-angle-down fs-16"></i>
@@ -43,7 +43,7 @@
                 <li class="m-t-30 ">
                     <a href="/" class="detailed">
                         <span class="title">Dashboard</span>
-                        <span class="details">12 New Updates</span>
+                        <#--  <span class="details">12 New Updates</span>  -->
                     </a>
                     <span class="bg-success icon-thumbnail"><i class="pg-home"></i></span>
                 </li>
