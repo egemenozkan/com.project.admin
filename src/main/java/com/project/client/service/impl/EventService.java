@@ -1,5 +1,6 @@
 package com.project.client.service.impl;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -7,11 +8,11 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.project.api.data.enums.EventType;
 import com.project.api.data.enums.MainType;
 import com.project.api.data.model.event.Event;
 import com.project.api.data.model.event.EventLandingPage;
 import com.project.api.data.model.event.EventRequest;
+import com.project.api.data.model.event.EventType;
 import com.project.api.data.model.event.TimeTable;
 import com.project.client.service.IEventService;
 
@@ -34,7 +35,8 @@ public class EventService extends BaseApiService implements IEventService {
 		if (eventRequest.getType() != null) {
 			endpoint.queryParam("type", eventRequest.getType().getId());
 		}
-		if (eventRequest.getTypes() != null) {
+		if (eventRequest.getTypes() != null
+				&& !Arrays.asList(eventRequest.getTypes()).contains(String.valueOf(EventType.ALL.getId()))) {
 			endpoint.queryParam("types", String.join(",", eventRequest.getTypes()));
 		}
 		if (eventRequest.getRandom() != null && eventRequest.getRandom()) {
@@ -55,6 +57,10 @@ public class EventService extends BaseApiService implements IEventService {
 		if (eventRequest.getDistinct() != null) {
 			endpoint.queryParam("distinct", eventRequest.getDistinct());
 		}
+		if (eventRequest.getStatus() != null) {
+			endpoint.queryParam("status", eventRequest.getStatus().getId());
+		}
+		
 		return getList(endpoint.toUriString(), new ParameterizedTypeReference<List<Event>>() {
 		});
 	}
@@ -147,5 +153,7 @@ public class EventService extends BaseApiService implements IEventService {
 //		endpoint.append("/api/v1/events/{id}/time-table");
 //		return (int) getObject(endpoint.toString(), Integer.class, id);
 //	}
+
+
 
 }

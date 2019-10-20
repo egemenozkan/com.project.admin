@@ -7,6 +7,7 @@ import com.project.api.data.enums.PlaceType;
 import com.project.api.data.model.event.TimeTable;
 import com.project.api.data.model.place.Place;
 import com.project.api.data.model.place.PlaceLandingPage;
+import com.project.api.data.model.place.PlaceRequest;
 
 public interface IPlaceService {
 	List<Place> getPlaces();
@@ -22,5 +23,7 @@ public interface IPlaceService {
 	List<TimeTable> getTimeTableByPlaceId(long placeId);
 	int saveTimeTable(TimeTable timeTable);
 	int deleteTimeTableById(long id);
+	List<Place> getPlaces(PlaceRequest placeRequest);
+
 
 }

@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -16,9 +15,9 @@ import com.project.api.data.enums.PlaceType;
 public class MenuInterceptor extends HandlerInterceptorAdapter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MenuInterceptor.class);
-	private final static MainType[] PLACE_MAIN_TYPES = MainType.values();
-	private final static PlaceType[] PLACE_TYPES = PlaceType.values();
-	private final static Language[] LANGUAGES = Language.values();
+	private static final MainType[] PLACE_MAIN_TYPES = MainType.values();
+	private static final PlaceType[] PLACE_TYPES = PlaceType.values();
+	private static final Language[] LANGUAGES = Language.values();
 
 	/**
 	 * Executed before actual handler is executed

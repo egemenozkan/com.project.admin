@@ -1,5 +1,7 @@
 package com.project.client.config;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import org.springframework.context.annotation.Bean;
@@ -77,7 +79,8 @@ public class WebMVCConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(localeChangeInterceptor());
-		registry.addInterceptor(new MenuInterceptor());
+		List<String> excludePathPatterns = Arrays.asList("/login", "/assets/*");
+		registry.addInterceptor(new MenuInterceptor()).excludePathPatterns("/login");
 	}
 
 	// @Override

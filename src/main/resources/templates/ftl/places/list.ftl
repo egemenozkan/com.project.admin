@@ -1,3 +1,16 @@
+<#ftl encoding="utf-8">
+<#import "*/imports/spring.ftl" as spring />
+<#import "*/imports/formatter.ftl" as formatter />
+<#import "*/imports/utils.ftl" as utils /> 
+	<!-- Page Properties -->
+<#assign title>Places</#assign>
+<#assign description></#assign>
+<#assign category="home">
+<#assign page="index">
+<#assign 	styles=[]>
+<#assign javascripts=[]>
+<#assign bundle="index"> 
+
 <!DOCTYPE html>
 <html>
 
@@ -29,6 +42,43 @@
 								</div>
 							</div>
 							<div class="clearfix"></div>
+                            <form>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="row">
+                                            <div class="form-group col-3">
+                                                <label for="sel-placeType">Type</label>
+                                                <select id="sel-placeType" name="type" class="full-width" data-init-plugin="select2" placeholder="Choose">
+                                                    <#list placeTypes as placeType>
+                                                        <option value="${ placeType.id }" <#if placeRequest.type?? && placeRequest.type == placeType>selected</#if>>${ placeType }</option>
+                                                    </#list>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-3">
+                                                <label for="sel-city">City</label>
+                                                <select id="sel-city" name="city" class="full-width" data-init-plugin="select2"  placeholder="Choose">
+                                                    <option value="0">Choose</option>
+                                                    <#list cities as city>
+                                                        <option value="${ city.id }" <#if placeRequest.cityId == city.id>selected</#if>>${ city.name }</option>
+                                                    </#list>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-3">
+                                                <label for="sel-district">District</label>
+                                                <select id="sel-district" name="district" class="full-width" data-init-plugin="select2"  placeholder="Choose">
+                                                    <option value="0">Choose</option>
+                                                    <#list districts as district>
+                                                        <option value="${ district.id }"  <#if placeRequest.districtId == district.id>selected</#if>>${ district.name }</option>
+                                                    </#list>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <button type="submit" name="filter" value="true" class="btn-success btn-sm">Filter</button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                         <div class="card-block">
                             <table class="table table-hover demo-table-search table-responsive-block" id="">

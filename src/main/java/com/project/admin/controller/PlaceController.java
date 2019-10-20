@@ -1,6 +1,5 @@
 package com.project.admin.controller;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.project.api.data.enums.LandingPageType;
 import com.project.api.data.enums.MainType;
@@ -27,28 +28,22 @@ import com.project.api.data.enums.PlaceType;
 import com.project.api.data.model.common.Address;
 import com.project.api.data.model.event.TimeTable;
 import com.project.api.data.model.file.MyFile;
+import com.project.api.data.model.gis.City;
+import com.project.api.data.model.gis.District;
 import com.project.api.data.model.place.Place;
 import com.project.api.data.model.place.PlaceLandingPage;
+import com.project.api.data.model.place.PlaceRequest;
 import com.project.client.service.IDatapoolService;
 import com.project.client.service.IFileService;
 import com.project.client.service.IPlaceService;
-import com.project.common.model.City;
-import com.project.common.model.Region;
-import com.project.common.model.Subregion;
 
 @Controller
 @RequestMapping(value = "/places/")
 public class PlaceController {
 
-	Logger LOG = LoggerFactory.getLogger(PlaceController.class);
+	Logger logger = LoggerFactory.getLogger(PlaceController.class);
 
-	private static final List<String> COUNTRIES = new ArrayList<>() {
-		{
-			add("Turkey");
-		}
-	};
-
-	private static final int COUNTRY_ID = 223;
+	private static final int TURKEY_COUNTRY_ID = 1;
 
 	@Autowired
 	private IPlaceService placeService;
@@ -58,43 +53,102 @@ public class PlaceController {
 
 	@Autowired
 	private IFileService fileService;
-	
+
 	private static final PeriodType[] PERIOD_TYPES = PeriodType.values();
 
-
-	@GetMapping({ "/list", "/list/{mainType}", "/list/{mainType}/{type}" })
-	public String listPlaces(Model model, @PathVariable(required = false) String mainType, @PathVariable(required = false) String type) {
-		model.addAttribute("title", "Places");
-		List<Place> places = null;
-		if (mainType == null && type == null) {
-			places = placeService.getPlaces();
-		}
+	@GetMapping({"/list/{mainType}", "/list/{mainType}/{type}" })
+	public String listPlaces(Model model, @RequestParam(defaultValue = "false") boolean filter, @PathVariable(required = false) String mainType,
+			@PathVariable(required = false) String type) {
+		
+		/* Filters */
+		model.addAttribute("cities", datapoolService.getCitiesByCountry(TURKEY_COUNTRY_ID));
+		model.addAttribute("placeTypes", PlaceType.values());
+		/* End Of Filters */
+		
+		PlaceRequest placeRequest = new PlaceRequest();
 		if (mainType != null && type == null) {
 			mainType = mainType.toUpperCase();
-			places = placeService.getPlacesByMainType(MainType.valueOf(mainType));
+			placeRequest.setMainType(MainType.valueOf(mainType));
+			filter = true;
 		}
 		if (mainType != null && type != null) {
 			type = type.toUpperCase();
-			places = placeService.getPlacesByType(PlaceType.valueOf(type));
+			placeRequest.setType(PlaceType.valueOf(type));
+			filter = true;
 		}
-		model.addAttribute("places", places);
 
+		placeRequest.setHideAddress(Boolean.TRUE);
+		placeRequest.setHideContact(Boolean.TRUE);
+		placeRequest.setHideContent(Boolean.TRUE);
+		placeRequest.setHideImages(Boolean.TRUE);
+		placeRequest.setHideMainImage(Boolean.TRUE);
+
+		model.addAttribute("places", filter ? placeService.getPlaces(placeRequest) : Collections.emptyList());
+		model.addAttribute("placeRequest", placeRequest);
+		
+		return "places/list";
+	}
+	
+	
+	@GetMapping({"/list"})
+	public String filterPlaces(Model model, @RequestParam(defaultValue = "false") boolean filter,
+			@RequestParam(required = false, defaultValue = "0") int  mainType,
+			@RequestParam(required = false, defaultValue = "0") int type,
+			@RequestParam(required = false, defaultValue = "0") int city,
+			@RequestParam(required = false, defaultValue = "0") int district) {
+		
+		/* Filters */
+		List<City> cities = datapoolService.getCitiesByCountry(TURKEY_COUNTRY_ID);
+		List<District> districts = Collections.emptyList();
+		if (!CollectionUtils.isEmpty(cities)) {
+			 districts = datapoolService.getDistrictsByCity(city > 0 ? city : cities.get(0).getId());
+		}
+		model.addAttribute("cities", cities);
+		model.addAttribute("districts", districts);
+		model.addAttribute("placeTypes", PlaceType.values());
+		/* End Of Filters */
+		
+		PlaceRequest placeRequest = new PlaceRequest();
+		if (mainType > 0) {
+			placeRequest.setMainType(MainType.getById(mainType));
+		}
+		if (type > 0) {
+			placeRequest.setType(PlaceType.getById(type));
+		}
+		if (city > 0) {
+			placeRequest.setCityId(city);
+		}
+		if (district > 0) {
+			placeRequest.setDistrictId(district);
+		}
+
+		placeRequest.setHideAddress(Boolean.TRUE);
+		placeRequest.setHideContact(Boolean.TRUE);
+		placeRequest.setHideContent(Boolean.TRUE);
+		placeRequest.setHideImages(Boolean.TRUE);
+		placeRequest.setHideMainImage(Boolean.TRUE);
+
+		model.addAttribute("places", filter ? placeService.getPlaces(placeRequest) : Collections.emptyList());
+		model.addAttribute("placeRequest", placeRequest);
+		
 		return "places/list";
 	}
 
 	@GetMapping("/editor/{id}")
 	public String editorPlace(Model model, @PathVariable long id) {
 
-		List<City> cities = datapoolService.getCitiesByCountryId(COUNTRY_ID);
-		model.addAttribute("cities", cities);
+		model.addAttribute("cities", datapoolService.getCitiesByCountry(TURKEY_COUNTRY_ID));
 		model.addAttribute("title", "Place Editor");
 		model.addAttribute("id", id);
 		Place place = placeService.getPlaceById(id);
 		if (place != null && place.getAddress() != null) {
-			List<Region> regions = datapoolService.getRegionsByCityId(place.getAddress().getCityId());
-			List<Subregion> subregions = datapoolService.getSubregionsByRegionId(place.getAddress().getRegionId());
-			model.addAttribute("regions", regions);
-			model.addAttribute("subregions", subregions);
+			if (place.getAddress().getCityId() > 0) {
+				model.addAttribute("districts", datapoolService.getDistrictsByCity(place.getAddress().getCityId()));
+			}
+
+			if (place.getAddress().getDistrictId() > 0) {
+				model.addAttribute("regions", datapoolService.getRegionsByDistrict(place.getAddress().getDistrictId()));
+			}
 		}
 
 		model.addAttribute("place", place);
@@ -105,10 +159,7 @@ public class PlaceController {
 
 	@GetMapping("/editor")
 	public String editorNewPlace(Model model) {
-
-		List<City> cities = datapoolService.getCitiesByCountryId(COUNTRY_ID);
-		model.addAttribute("cities", cities);
-
+		model.addAttribute("cities", datapoolService.getCitiesByCountry(TURKEY_COUNTRY_ID));
 		model.addAttribute("title", "Place Editor");
 		Place place = new Place();
 		place.setAddress(new Address());
@@ -119,12 +170,16 @@ public class PlaceController {
 	}
 
 	@PostMapping(value = "/savep")
-	public String savePlace(@ModelAttribute("place") Place place) {
+	public RedirectView savePlace(@ModelAttribute("place") Place place) {
 		Place result = placeService.savePlace(place);
+		RedirectView redirect = new RedirectView();
+		redirect.setExposeModelAttributes(false);
 		if (result != null) {
-			return "redirect:/places/editor/" + result.getId();
+			redirect.setUrl("/places/editor/" + result.getId());
+		} else {
+			redirect.setUrl("/places/editor");
 		}
-		return "redirect:/places/editor";
+		return redirect;
 	}
 
 	/** Landingpage **/
@@ -143,11 +198,13 @@ public class PlaceController {
 	}
 
 	@PostMapping("/pages")
-	public String savePage(Model model, @ModelAttribute("page") PlaceLandingPage page, BindingResult result) {
+	public RedirectView savePage(Model model, @ModelAttribute("page") PlaceLandingPage page, BindingResult result) {
 		placeService.saveLandingPage(page);
 
-		return "redirect:/places/" + page.getPlace().getId() + "/pages/" + page.getLanguage().getCode().toLowerCase();
-
+		RedirectView redirect = new RedirectView(
+				"/places/" + page.getPlace().getId() + "/pages/" + page.getLanguage().getCode().toLowerCase());
+		redirect.setExposeModelAttributes(false);
+		return redirect;
 	}
 
 	@GetMapping("/autocomplete")
@@ -167,33 +224,28 @@ public class PlaceController {
 		model.addAttribute("files", files);
 		return "places/multimedia_editor";
 	}
-	
+
 	@PostMapping({ "/{id}/main-image" })
 	public @ResponseBody boolean setMainImage(Model model, @PathVariable long id, @RequestParam long fileId) {
 		placeService.setMainImage(id, fileId);
 		return true;
 	}
-	
-	
+
 	@GetMapping("/{id}/time-table")
 	public @ResponseBody List<TimeTable> getTimeTable(@PathVariable long id) {
 		return placeService.getTimeTableByPlaceId(id);
 	}
-	
+
 	@PostMapping("/time-table")
 	public @ResponseBody TimeTable saveTimeTable(RequestEntity<TimeTable> requestEntity) {
 		placeService.saveTimeTable(requestEntity.getBody());
 		return requestEntity.getBody();
 	}
-	
+
 	@DeleteMapping("/time-table/{id}")
 	public @ResponseBody boolean deleteTimeTable(@PathVariable long id) {
 		placeService.deleteTimeTableById(id);
 		return true;
 	}
-	
-
-	
-	
 
 }
