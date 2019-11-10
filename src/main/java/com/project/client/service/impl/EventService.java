@@ -60,7 +60,12 @@ public class EventService extends BaseApiService implements IEventService {
 		if (eventRequest.getStatus() != null) {
 			endpoint.queryParam("status", eventRequest.getStatus().getId());
 		}
-		
+		if (eventRequest.isHidePlace()) {
+			endpoint.queryParam("hidePlace", eventRequest.isHidePlace());
+		}
+		if (eventRequest.getName() != null) {
+			endpoint.queryParam("name", eventRequest.getName());
+		}
 		return getList(endpoint.toUriString(), new ParameterizedTypeReference<List<Event>>() {
 		});
 	}

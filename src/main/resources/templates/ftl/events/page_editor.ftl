@@ -1,3 +1,16 @@
+<#ftl  encoding="utf-8" output_format="XML" auto_esc=true>
+<#import "*/imports/spring.ftl" as spring />
+<#import "*/imports/formatter.ftl" as formatter />
+<#import "*/imports/utils.ftl" as utils /> 
+	<!-- Page Properties -->
+<#assign title>Events</#assign>
+<#assign description></#assign>
+<#assign category="home">
+<#assign PAGE="index">
+<#assign 	styles=[]>
+<#assign javascripts=[]>
+<#assign bundle="index"> 
+
 <!DOCTYPE html>
 <html>
 
@@ -13,7 +26,7 @@
                 <div class=" container-fluid   container-fixed-lg bg-white">
                     <div class="card card-transparent">
                         <div class="card-header ">
-                            <div class="card-title">Events  - ${page.event.name} [${page.event.language}]
+                            <div class="card-title">Events  - ${page.event.name!} [${page.event.language!}]
                             </div>
                             <div class="pull-right">
                                 <div class="col-xs-12">

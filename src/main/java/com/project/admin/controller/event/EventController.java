@@ -1,7 +1,6 @@
 package com.project.admin.controller.event;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +32,6 @@ import com.project.api.data.model.event.EventRequest;
 import com.project.api.data.model.event.EventStatus;
 import com.project.api.data.model.event.EventType;
 import com.project.api.data.model.event.TimeTable;
-import com.project.api.data.model.place.Place;
 import com.project.client.service.IDatapoolService;
 import com.project.client.service.IEventService;
 import com.project.client.service.IPlaceService;
@@ -76,11 +74,12 @@ public class EventController {
 			if (types != null) {
 				eventRequest.setTypes(types);
 			}
-			
 			eventRequest.setStatus(EventStatus.getById(status));
 			
 			/* Show OneByOne */
 			eventRequest.setDistinct(Boolean.TRUE);
+			/* Data Optimisation */
+			eventRequest.setHidePlace(Boolean.TRUE);
 			model.addAttribute("eventRequest", eventRequest);
 			model.addAttribute("events", eventService.getEvents(eventRequest));
 		}
@@ -170,11 +169,15 @@ public class EventController {
 	}
 	
 	@GetMapping("/autocomplete")
-	public @ResponseBody List<Place> autocompleteEvents(Model model, @RequestParam String query) {
+	public @ResponseBody List<Event> autocompleteEvents(Model model, @RequestParam String query) {
 		if (query != null && query.length() < 3) {
 			return Collections.emptyList();
 		}
-		return placeService.autocompletePlaces(query);
+		EventRequest eventRequest = new EventRequest();
+		eventRequest.setName(query);
+		eventRequest.setLanguage(Language.TURKISH);
+		eventRequest.setHidePlace(Boolean.TRUE);
+		return eventService.getEvents(eventRequest);
 
 	}
 	
