@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="${ webPage.language.code?lower_case }" class="" data-user-id="<#if (user?? &&  user.id??)>${ user.id?c! }<#else>0</#if>" data-place-id="0">
 
 <head>
     <meta http-equiv="content-type" content="text/html;charset=UTF-8" />

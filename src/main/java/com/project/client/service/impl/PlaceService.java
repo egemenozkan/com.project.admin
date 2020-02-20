@@ -10,7 +10,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.project.api.data.enums.MainType;
 import com.project.api.data.enums.PlaceType;
-import com.project.api.data.model.event.Event;
 import com.project.api.data.model.event.EventType;
 import com.project.api.data.model.event.TimeTable;
 import com.project.api.data.model.place.Place;
@@ -162,8 +161,11 @@ public class PlaceService extends BaseApiService implements IPlaceService {
 		if (placeRequest.getCityId() > 0) {
 			endpoint.queryParam("city", placeRequest.getCityId());
 		}
-		if (placeRequest.getDistrictId() > 0) {
-			endpoint.queryParam("district", placeRequest.getDistrictId());
+		if (placeRequest.getDistricts() != null && placeRequest.getDistricts().length > 0) {
+			endpoint.queryParam("districts", String.join(",", placeRequest.getDistricts()));
+		}
+		if (placeRequest.getRegions() != null && placeRequest.getRegions().length > 0) {
+			endpoint.queryParam("regions", String.join(",", placeRequest.getRegions()));
 		}
 		if (placeRequest.getLimit() > 0) {
 			endpoint.queryParam("limit", placeRequest.getLimit());

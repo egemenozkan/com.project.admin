@@ -9,7 +9,7 @@
 <#assign page="index">
 <#assign 	styles=[]>
 <#assign javascripts=[]>
-<#assign bundle="index"> 
+<#assign bundle="page_list"> 
 
 <!DOCTYPE html>
 <html>
@@ -67,8 +67,8 @@
                                                 <label for="sel-district">District</label>
                                                 <select id="sel-district" name="district" class="full-width" data-init-plugin="select2"  placeholder="Choose">
                                                     <option value="0">Choose</option>
-                                                    <#list districts as district>
-                                                        <option value="${ district.id }"  <#if placeRequest.districtId == district.id>selected</#if>>${ district.name }</option>
+                                                    <#list districts! as district>
+                                                        <#--  <option value="${ district.id }"  <#if placeRequest.districts!?seq_index_of(district.id) != -1>selected</#if>>${ district.name }</option>  -->
                                                     </#list>
                                                 </select>
                                             </div>
