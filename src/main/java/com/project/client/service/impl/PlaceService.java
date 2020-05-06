@@ -162,9 +162,9 @@ public class PlaceService extends BaseApiService implements IPlaceService {
 		if (placeRequest.getCityId() > 0) {
 			endpoint.queryParam("city", placeRequest.getCityId());
 		}
-		if (placeRequest.getDistrictId() > 0) {
-			endpoint.queryParam("district", placeRequest.getDistrictId());
-		}
+//		if (placeRequest.getDistrictId() > 0) {
+//			endpoint.queryParam("district", placeRequest.getDistrictId());
+//		}
 		if (placeRequest.getLimit() > 0) {
 			endpoint.queryParam("limit", placeRequest.getLimit());
 		}
