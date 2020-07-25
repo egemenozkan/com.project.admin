@@ -118,10 +118,10 @@ public class PlaceController {
 		if (city > 0) {
 			placeRequest.setCityId(city);
 		}
-		if (district > 0) {
-			placeRequest.setDistrictId(district);
-		}
-
+//		if (district > 0) {
+//			placeRequest.setDistrictId(district);
+//		}
+//
 		placeRequest.setHideAddress(Boolean.TRUE);
 		placeRequest.setHideContact(Boolean.TRUE);
 		placeRequest.setHideContent(Boolean.TRUE);
